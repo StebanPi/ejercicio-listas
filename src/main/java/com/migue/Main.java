@@ -15,6 +15,7 @@ public class Main {
         System.out.println(lista);
         lista.deleteByData(20);
         System.out.println(lista);
+        System.out.println("!");
 
 
 //        lista.reverse();
