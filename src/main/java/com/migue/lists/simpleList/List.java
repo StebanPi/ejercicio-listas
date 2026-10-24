@@ -7,18 +7,86 @@ public class List implements ListOperation {
     private Node last;
     private int size;
 
+    public List() {
+        this.head = null;
+        this.last = null;
+        this.size = 0;
+    }
+
+    public Node getHead() {
+        return head;
+    }
+
+    public void setHead(Node head) {
+        this.head = head;
+    }
+
+    public Node getLast() {
+        return last;
+    }
+
+    public void setLast(Node last) {
+        this.last = last;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int obtenerTamanio() {
+        return this.size;
+    }
+
+    public void vaciar() {
+        this.head = null;
+        this.last = null;
+        this.size = 0;
+    }
+
+    public void clear() {
+        vaciar();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.head == null;
+    }
+
     @Override
     public void add(int data) {
+        agregarAlFinal(data);
+    }
+
+    public void agregarAlFinal(int data) {
         Node n = new Node(data);
         if (this.isEmpty()) {
             this.head = n;
             this.last = n;
         } else {
-            last.setNext(n);
-            last = n;
+            this.last.setNext(n);
+            this.last = n;
         }
-
         this.size++;
+    }
+
+    public void agregarNodo(Node nodo) {
+        if (nodo == null) return;
+        nodo.setNext(null);
+        if (this.head == null) {
+            this.head = nodo;
+        } else {
+            this.last.setNext(nodo);
+        }
+        this.last = nodo;
+        this.size++;
+    }
+
+    public void agregarNodoAlFinal(Node n) {
+        agregarNodo(n);
     }
 
     @Override
@@ -28,66 +96,47 @@ public class List implements ListOperation {
         if (this.isEmpty()) {
             this.last = f;
         }
-
         this.head = f;
-
         this.size++;
     }
 
     @Override
-    public String toString() {
-        String info = "[";
-        Node temp = this.head;
-        while (temp != null) {
-            info = info.concat(temp.getData()+((temp.getNext() == null)?"":", "));
-
-            temp = temp.getNext();
-        }
-
-        return  info.concat("]");
-    }
-
-    @Override
     public void delete(int position) {
-        if (position < 0 || position > this.size - 1)
+        if (position < 0 || position >= this.size) {
             return;
-
-        this.size--;
+        }
 
         if (position == 0) {
             this.head = this.head.getNext();
+            if (this.head == null) {
+                this.last = null;
+            }
+            this.size--;
             return;
         }
 
         Node temp = this.head;
-        //
         for (int i = 0; i < position - 1; i++) {
             temp = temp.getNext();
         }
-        if (temp.getNext() == this.last) {
+
+        Node toDelete = temp.getNext();
+        temp.setNext(toDelete.getNext());
+        if (toDelete == this.last) {
             this.last = temp;
         }
-        Node temp2 = temp.getNext().getNext();
-
-        temp.setNext(temp2);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.head == null;
+        this.size--;
     }
 
     @Override
     public Integer get(int position) {
-        if (position < 0 || position > this.size - 1)
+        if (position < 0 || position >= this.size) {
             return null;
-
+        }
         Node temp = this.head;
-        //
         for (int i = 0; i < position; i++) {
             temp = temp.getNext();
         }
-
         return temp.getData();
     }
 
@@ -95,15 +144,12 @@ public class List implements ListOperation {
     public boolean contains(int data) {
         Node temp = this.head;
         while (temp != null) {
-            //temp.getData() == data
             if (temp.checkData(data)) {
                 return true;
             }
             temp = temp.getNext();
         }
-
         return false;
-
     }
 
     @Override
@@ -111,30 +157,29 @@ public class List implements ListOperation {
         Node temp = this.head;
         int index = 0;
         while (temp != null) {
-            //temp.getData() == data
             if (temp.checkData(data)) {
                 return index;
             }
             index++;
             temp = temp.getNext();
         }
-
         return -1;
     }
 
     @Override
     public void addOrder(int data) {
         Node n = new Node(data);
-
         if (this.isEmpty()) {
             this.head = n;
             this.last = n;
+            this.size++;
             return;
         }
 
-        if (this.head.getData() > n.getData()) {
+        if (this.head.getData() >= n.getData()) {
             n.setNext(this.head);
             this.head = n;
+            this.size++;
             return;
         }
 
@@ -149,22 +194,23 @@ public class List implements ListOperation {
             n.setNext(temp.getNext());
         }
         temp.setNext(n);
+        this.size++;
     }
 
     @Override
     public void removeDuplicates() {
         if (this.isEmpty()) return;
         Node temp1 = this.head;
-        while (temp1 != this.last) {
+        while (temp1 != null && temp1.getNext() != null) {
             Node temp2 = temp1;
             while (temp2.getNext() != null) {
                 if (temp2.getNext().checkData(temp1.getData())) {
-                    if (temp2.getNext() == this.last) {
+                    Node toDelete = temp2.getNext();
+                    if (toDelete == this.last) {
                         this.last = temp2;
                     }
+                    temp2.setNext(toDelete.getNext());
                     this.size--;
-                    // Eliminar
-                    temp2.setNext(temp2.getNext().getNext());
                 } else {
                     temp2 = temp2.getNext();
                 }
@@ -178,7 +224,7 @@ public class List implements ListOperation {
         if (this.isEmpty() || this.size == 1) return;
         this.last = this.head;
         Node tempNext;
-        while(this.last.getNext() != null) {
+        while (this.last.getNext() != null) {
             tempNext = this.last.getNext();
             this.last.setNext(tempNext.getNext());
             tempNext.setNext(this.head);
@@ -186,57 +232,94 @@ public class List implements ListOperation {
         }
     }
 
-
-    public void agregarAlFinal(int dato) {
-        this.add(dato);
-    }
-
     public void mostrar() {
         System.out.println(this);
     }
 
-    public int obtenerTamanio() {
-        int contador = 0;
+    public String obtenerTexto() {
+        if (this.isEmpty()) {
+            return "vacía";
+        }
+        StringBuilder sb = new StringBuilder();
         Node temp = this.head;
         while (temp != null) {
-            contador++;
+            sb.append(temp.getData());
+            if (temp.getNext() != null) {
+                sb.append(" - ");
+            }
             temp = temp.getNext();
         }
-        return contador;
+        return sb.toString();
     }
 
+    @Override
+    public String toString() {
+        return obtenerTexto();
+    }
 
-    private void agregarNodo(Node nodo) {
-        nodo.setNext(null);
-        if (this.head == null) {
-            this.head = nodo;
-        } else {
-            this.last.setNext(nodo);
+    public List clonar() {
+        List copia = new List();
+        Node temp = this.head;
+        while (temp != null) {
+            copia.agregarAlFinal(temp.getData());
+            temp = temp.getNext();
         }
-        this.last = nodo;
-        this.size++;
+        return copia;
     }
 
+    public void eliminarTodasLasOcurrencias(int data) {
+        if (this.isEmpty()) return;
 
+        while (this.head != null && this.head.getData() == data) {
+            this.head = this.head.getNext();
+            this.size--;
+        }
+
+        if (this.head == null) {
+            this.last = null;
+            this.size = 0;
+            return;
+        }
+
+        Node anterior = this.head;
+        while (anterior.getNext() != null) {
+            Node actual = anterior.getNext();
+            if (actual.getData() == data) {
+                anterior.setNext(actual.getNext());
+                if (actual == this.last) {
+                    this.last = anterior;
+                }
+                this.size--;
+            } else {
+                anterior = actual;
+            }
+        }
+    }
 
     public static List combinarListas(List l1, List l2) {
         List resultado = new List();
-        Node temp = l1.head;
-        while (temp != null) {
-            resultado.agregarAlFinal(temp.getData());
-            temp = temp.getNext();
+        if (l1 != null) {
+            Node temp = l1.head;
+            while (temp != null) {
+                resultado.agregarAlFinal(temp.getData());
+                temp = temp.getNext();
+            }
         }
-        temp = l2.head;
-        while (temp != null) {
-            resultado.agregarAlFinal(temp.getData());
-            temp = temp.getNext();
+        if (l2 != null) {
+            Node temp = l2.head;
+            while (temp != null) {
+                resultado.agregarAlFinal(temp.getData());
+                temp = temp.getNext();
+            }
         }
         return resultado;
     }
 
-
     public static List elementosComunes(List l1, List l2) {
         List resultado = new List();
+        if (l1 == null || l2 == null || l1.isEmpty() || l2.isEmpty()) {
+            return resultado;
+        }
         Node temp = l1.head;
         while (temp != null) {
             if (l2.contains(temp.getData()) && !resultado.contains(temp.getData())) {
@@ -247,13 +330,16 @@ public class List implements ListOperation {
         return resultado;
     }
 
-
     public void eliminarElementosDe(List otra) {
-        // Eliminar al inicio mientras coincida
+        if (this.isEmpty() || otra == null || otra.isEmpty()) {
+            return;
+        }
+
         while (this.head != null && otra.contains(this.head.getData())) {
             this.head = this.head.getNext();
             this.size--;
         }
+
         if (this.head == null) {
             this.last = null;
             this.size = 0;
@@ -264,18 +350,20 @@ public class List implements ListOperation {
         while (anterior.getNext() != null) {
             Node actual = anterior.getNext();
             if (otra.contains(actual.getData())) {
-                anterior.setNext(actual.getNext()); // se salta el nodo
+                anterior.setNext(actual.getNext());
+                if (actual == this.last) {
+                    this.last = anterior;
+                }
                 this.size--;
             } else {
                 anterior = actual;
             }
         }
-        this.last = anterior;
     }
 
-    // ---------- Ejercicio 4: Comparar si dos listas son iguales ----------
-
     public static boolean sonIguales(List l1, List l2) {
+        if (l1 == null && l2 == null) return true;
+        if (l1 == null || l2 == null) return false;
         if (l1.obtenerTamanio() != l2.obtenerTamanio()) {
             return false;
         }
@@ -291,51 +379,59 @@ public class List implements ListOperation {
         return true;
     }
 
-
+    public boolean sonIguales(List otra) {
+        return sonIguales(this, otra);
+    }
 
     public static List elementosExclusivos(List l1, List l2) {
         List resultado = new List();
-        Node temp = l1.head;
-        while (temp != null) {
-            if (!l2.contains(temp.getData()) && !resultado.contains(temp.getData())) {
-                resultado.agregarAlFinal(temp.getData());
+        if (l1 != null) {
+            Node temp = l1.head;
+            while (temp != null) {
+                if ((l2 == null || !l2.contains(temp.getData())) && !resultado.contains(temp.getData())) {
+                    resultado.agregarAlFinal(temp.getData());
+                }
+                temp = temp.getNext();
             }
-            temp = temp.getNext();
         }
-        temp = l2.head;
-        while (temp != null) {
-            if (!l1.contains(temp.getData()) && !resultado.contains(temp.getData())) {
-                resultado.agregarAlFinal(temp.getData());
+        if (l2 != null) {
+            Node temp = l2.head;
+            while (temp != null) {
+                if ((l1 == null || !l1.contains(temp.getData())) && !resultado.contains(temp.getData())) {
+                    resultado.agregarAlFinal(temp.getData());
+                }
+                temp = temp.getNext();
             }
-            temp = temp.getNext();
         }
         return resultado;
     }
 
-
     public void transferirA(List destino) {
-        if (this.head == null) return;
-
-        int cantidad = this.obtenerTamanio();
-        if (destino.head == null) {
+        if (this.isEmpty() || destino == null) {
+            return;
+        }
+        if (destino.isEmpty()) {
             destino.head = this.head;
+            destino.last = this.last;
+            destino.size = this.size;
         } else {
             destino.last.setNext(this.head);
+            destino.last = this.last;
+            destino.size += this.size;
         }
-        destino.last = this.last;
-        destino.size += cantidad;
-
         this.head = null;
         this.last = null;
         this.size = 0;
     }
 
-
+    public void transferirElementosA(List destino) {
+        transferirA(destino);
+    }
 
     public void distribuirParesImpares(List pares, List impares) {
         Node actual = this.head;
         while (actual != null) {
-            Node siguiente = actual.getNext(); // guardar antes de desenlazar
+            Node siguiente = actual.getNext();
             if (actual.getData() % 2 == 0) {
                 pares.agregarNodo(actual);
             } else {
@@ -346,5 +442,85 @@ public class List implements ListOperation {
         this.head = null;
         this.last = null;
         this.size = 0;
+    }
+
+    public static List[] distribuirParesImpares(List origen) {
+        List pares = new List();
+        List impares = new List();
+        if (origen != null) {
+            origen.distribuirParesImpares(pares, impares);
+        }
+        return new List[]{pares, impares};
+    }
+
+    public List fusionarCon(List otra) {
+        return fusionarOrdenadas(this, otra);
+    }
+
+    public static List fusionarOrdenadas(List l1, List l2) {
+        List resultado = new List();
+        Node p1 = (l1 != null) ? l1.head : null;
+        Node p2 = (l2 != null) ? l2.head : null;
+
+        while (p1 != null && p2 != null) {
+            if (p1.getData() <= p2.getData()) {
+                resultado.agregarAlFinal(p1.getData());
+                p1 = p1.getNext();
+            } else {
+                resultado.agregarAlFinal(p2.getData());
+                p2 = p2.getNext();
+            }
+        }
+
+        while (p1 != null) {
+            resultado.agregarAlFinal(p1.getData());
+            p1 = p1.getNext();
+        }
+
+        while (p2 != null) {
+            resultado.agregarAlFinal(p2.getData());
+            p2 = p2.getNext();
+        }
+
+        return resultado;
+    }
+
+    public List intercalarCon(List otra) {
+        return intercalar(this, otra);
+    }
+
+    public static List intercalar(List l1, List l2) {
+        List resultado = new List();
+        Node p1 = (l1 != null) ? l1.head : null;
+        Node p2 = (l2 != null) ? l2.head : null;
+
+        while (p1 != null || p2 != null) {
+            if (p1 != null) {
+                resultado.agregarAlFinal(p1.getData());
+                p1 = p1.getNext();
+            }
+            if (p2 != null) {
+                resultado.agregarAlFinal(p2.getData());
+                p2 = p2.getNext();
+            }
+        }
+
+        return resultado;
+    }
+
+    public void eliminarDuplicadosCon(List otra) {
+        eliminarDuplicadosEntreListas(this, otra);
+    }
+
+    public static void eliminarDuplicadosEntreListas(List l1, List l2) {
+        if (l1 == null || l2 == null || l1.isEmpty() || l2.isEmpty()) {
+            return;
+        }
+
+        Node temp = l1.head;
+        while (temp != null) {
+            l2.eliminarTodasLasOcurrencias(temp.getData());
+            temp = temp.getNext();
+        }
     }
 }
