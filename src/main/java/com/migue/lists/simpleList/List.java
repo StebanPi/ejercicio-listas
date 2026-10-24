@@ -185,4 +185,166 @@ public class List implements ListOperation {
             this.head = tempNext;
         }
     }
+
+
+    public void agregarAlFinal(int dato) {
+        this.add(dato);
+    }
+
+    public void mostrar() {
+        System.out.println(this);
+    }
+
+    public int obtenerTamanio() {
+        int contador = 0;
+        Node temp = this.head;
+        while (temp != null) {
+            contador++;
+            temp = temp.getNext();
+        }
+        return contador;
+    }
+
+
+    private void agregarNodo(Node nodo) {
+        nodo.setNext(null);
+        if (this.head == null) {
+            this.head = nodo;
+        } else {
+            this.last.setNext(nodo);
+        }
+        this.last = nodo;
+        this.size++;
+    }
+
+
+
+    public static List combinarListas(List l1, List l2) {
+        List resultado = new List();
+        Node temp = l1.head;
+        while (temp != null) {
+            resultado.agregarAlFinal(temp.getData());
+            temp = temp.getNext();
+        }
+        temp = l2.head;
+        while (temp != null) {
+            resultado.agregarAlFinal(temp.getData());
+            temp = temp.getNext();
+        }
+        return resultado;
+    }
+
+
+    public static List elementosComunes(List l1, List l2) {
+        List resultado = new List();
+        Node temp = l1.head;
+        while (temp != null) {
+            if (l2.contains(temp.getData()) && !resultado.contains(temp.getData())) {
+                resultado.agregarAlFinal(temp.getData());
+            }
+            temp = temp.getNext();
+        }
+        return resultado;
+    }
+
+
+    public void eliminarElementosDe(List otra) {
+        // Eliminar al inicio mientras coincida
+        while (this.head != null && otra.contains(this.head.getData())) {
+            this.head = this.head.getNext();
+            this.size--;
+        }
+        if (this.head == null) {
+            this.last = null;
+            this.size = 0;
+            return;
+        }
+
+        Node anterior = this.head;
+        while (anterior.getNext() != null) {
+            Node actual = anterior.getNext();
+            if (otra.contains(actual.getData())) {
+                anterior.setNext(actual.getNext()); // se salta el nodo
+                this.size--;
+            } else {
+                anterior = actual;
+            }
+        }
+        this.last = anterior;
+    }
+
+    // ---------- Ejercicio 4: Comparar si dos listas son iguales ----------
+
+    public static boolean sonIguales(List l1, List l2) {
+        if (l1.obtenerTamanio() != l2.obtenerTamanio()) {
+            return false;
+        }
+        Node a = l1.head;
+        Node b = l2.head;
+        while (a != null && b != null) {
+            if (a.getData() != b.getData()) {
+                return false;
+            }
+            a = a.getNext();
+            b = b.getNext();
+        }
+        return true;
+    }
+
+
+
+    public static List elementosExclusivos(List l1, List l2) {
+        List resultado = new List();
+        Node temp = l1.head;
+        while (temp != null) {
+            if (!l2.contains(temp.getData()) && !resultado.contains(temp.getData())) {
+                resultado.agregarAlFinal(temp.getData());
+            }
+            temp = temp.getNext();
+        }
+        temp = l2.head;
+        while (temp != null) {
+            if (!l1.contains(temp.getData()) && !resultado.contains(temp.getData())) {
+                resultado.agregarAlFinal(temp.getData());
+            }
+            temp = temp.getNext();
+        }
+        return resultado;
+    }
+
+
+    public void transferirA(List destino) {
+        if (this.head == null) return;
+
+        int cantidad = this.obtenerTamanio();
+        if (destino.head == null) {
+            destino.head = this.head;
+        } else {
+            destino.last.setNext(this.head);
+        }
+        destino.last = this.last;
+        destino.size += cantidad;
+
+        this.head = null;
+        this.last = null;
+        this.size = 0;
+    }
+
+
+
+    public void distribuirParesImpares(List pares, List impares) {
+        Node actual = this.head;
+        while (actual != null) {
+            Node siguiente = actual.getNext(); // guardar antes de desenlazar
+            if (actual.getData() % 2 == 0) {
+                pares.agregarNodo(actual);
+            } else {
+                impares.agregarNodo(actual);
+            }
+            actual = siguiente;
+        }
+        this.head = null;
+        this.last = null;
+        this.size = 0;
+    }
 }
